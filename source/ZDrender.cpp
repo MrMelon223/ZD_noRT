@@ -130,7 +130,7 @@ void ZDrender::draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* inst
 				float fov_rad = d_camera->hori_fov * (PI / 180.0f);
 				float half_fov = fov_rad * 0.5f;
 
-				normalized_coord.x = norm_x * ratio;
+				normalized_coord.x = norm_x;
 				normalized_coord.y = norm_y;
 
 				d_color_buff[y * *d_width + x] = color_t{ 0.17f, 0.15f, 0.17f, 1.0f };
