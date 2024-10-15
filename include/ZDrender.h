@@ -5,8 +5,10 @@
 
 SYCL_EXTERNAL float line_equation(vec3_t, vec2_t);
 
-void calculate_instance_visibility(d_ZDmodel*, d_ZDinstance*, d_ZDcamera*, int_t, sycl::queue*);
+namespace ZDrender {
+	void calculate_instance_visibility(d_ZDmodel*, d_ZDinstance*, int_t, d_ZDcamera*, sycl::queue*);
 
-void draw(d_ZDframebuffer*, d_ZDmodel*, d_ZDinstance*, d_ZDcamera*, int_t, sycl::queue*);
+	void draw(d_ZDframebuffer*, d_ZDmodel*, d_ZDinstance*, d_ZDcamera*, int_t, sycl::queue*);
+}
 
 #endif

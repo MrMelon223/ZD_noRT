@@ -15,12 +15,19 @@ protected:
 public:
 	ZDcamera(int_t, int_t, float, vec3_t, vec3_t);
 
+	void set_direction(vec3_t d) { this->direction = d; }
+
+	vec3_t get_position() { return this->position; }
+
 	void update_direction(float, float);
 
 	void forward(float);
 	void backward(float);
 	void right(float);
 	void left(float);
+
+	void turn_right(float);
+	void turn_left(float);
 
 	void debug_print();
 

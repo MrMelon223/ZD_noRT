@@ -3,7 +3,6 @@
 
 #include "Compute.h"
 #include "ZDframebuffer.h"
-#include "ZDlevel.h"
 #include "ZDrender.h"
 
 static void keyboard_callback(GLFWwindow*, int, int, int, int);

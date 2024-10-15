@@ -42,15 +42,15 @@ void ZDcamera::update_direction(float x, float y) {
 	float view_x = normalized_coord_x * half_fov_hori_rad * aspect_ratio;
 	float view_y = normalized_coord_y * half_fov_vert_rad;
 
-	this->rotation.x += view_x * 0.1f; //* (static_cast<float>(this->dims.x) / this->dims.y);
-	this->rotation.y -= view_y * 0.1f;
-	//this->rotation.z = 0.0f;
+	this->rotation.x += view_x * 0.01f; //* (static_cast<float>(this->dims.x) / this->dims.y);
+	this->rotation.y -= view_y * 0.01f;
+	this->rotation.z = 0.0f;
 
 	if (this->rotation.y > 80.0f) {
 		this->rotation.y = 80.0f;
 	}
-	if (this->rotation.y < -90.0f) {
-		this->rotation.y = -90.0f;
+	if (this->rotation.y < -88.0f) {
+		this->rotation.y = -88.0f;
 	}
 
 	float yaw = this->rotation.x * (PI / 180.0f),
@@ -63,18 +63,25 @@ void ZDcamera::update_direction(float x, float y) {
 	this->direction = ZD::normalize(this->direction);
 }
 
-void ZDcamera::forward(float t) {
-	this->position = ZD::add_v3(this->position, ZD::multiply(ZD::normalize(this->direction), t));
+void ZDcamera::right(float t) {
+	this->position = ZD::add_v3(this->position, ZD::multiply(ZD::normalize(this->direction), t * 0.01f));
 }
 
-void ZDcamera::backward(float t) {
-	this->position = ZD::subtract_v3(this->position, ZD::multiply(ZD::normalize(this->direction), t));
-}
-void ZDcamera::right(float t) {
-	this->position = ZD::add_v3(this->position, ZD::multiply( ZD::cross(this->direction, vec3_t{0.0f, 1.0f, 0.0f}), t));
-}
 void ZDcamera::left(float t) {
-	this->position = ZD::subtract_v3(this->position, ZD::multiply(ZD::cross(this->direction, vec3_t{0.0f, 1.0f, 0.0f}), t));
+	this->position = ZD::subtract_v3(this->position, ZD::multiply(ZD::normalize(this->direction), t * 0.01f));
+}
+void ZDcamera::forward(float t) {
+	this->position = ZD::add_v3(this->position, ZD::multiply( ZD::cross(this->direction, vec3_t{0.0f, 1.0f, 0.0f}), t * 0.01f));
+}
+void ZDcamera::backward(float t) {
+	this->position = ZD::subtract_v3(this->position, ZD::multiply(ZD::cross(this->direction, vec3_t{0.0f, 1.0f, 0.0f}), t * 0.01f));
+}
+
+void ZDcamera::turn_right(float t) {
+	this->rotation.y += 0.1f;
+}
+void ZDcamera::turn_left(float t) {
+	this->rotation.y -= 0.1f;
 }
 
 void ZDcamera::debug_print() {

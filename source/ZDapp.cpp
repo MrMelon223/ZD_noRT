@@ -48,6 +48,24 @@ void ZDapp::input_handle(KeyboardButtonUse& k) {
 
 	//this->is_walking = false, this->is_sprinting = false, this->trying_sprint = false;;
 	switch (CURRENT_KEY) {
+	case GLFW_KEY_RIGHT:
+		if (CURRENT_ACTION == GLFW_RELEASE) {
+
+		}
+		if (CURRENT_ACTION == GLFW_PRESS || CURRENT_ACTION == GLFW_REPEAT) {
+			this->current_level->get_camera()->turn_right(glfwGetTime() - this->last_time);
+			this->current_level->get_camera()->debug_print();
+		}
+		break;
+	case GLFW_KEY_LEFT:
+		if (CURRENT_ACTION == GLFW_RELEASE) {
+
+		}
+		if (CURRENT_ACTION == GLFW_PRESS || CURRENT_ACTION == GLFW_REPEAT) {
+			this->current_level->get_camera()->turn_left(glfwGetTime() - this->last_time);
+			this->current_level->get_camera()->debug_print();
+		}
+		break;
 	case GLFW_KEY_W:
 		if (CURRENT_ACTION == GLFW_RELEASE) {
 
@@ -174,6 +192,7 @@ void ZDapp::main_loop() {
 	this->last_time = glfwGetTime();
 	d_ZDcamera* d_cam;
 
+	sycl::queue* gpu = this->compute->get_gpu_queue();
 	while (this->loop && !glfwWindowShouldClose(this->window)) {
 		glfwMakeContextCurrent(this->window);
 		//zero_buffers(this->frame_buffer);
@@ -182,7 +201,8 @@ void ZDapp::main_loop() {
 
 		d_cam = this->current_level->get_camera()->to_gpu(this->compute->get_gpu_queue());
 
-		draw(this->frame_buffer, d_models, d_instances, d_cam, static_cast<int_t>(this->current_level->get_instance_count()), this->compute->get_gpu_queue());
+		ZDrender::calculate_instance_visibility(d_models, d_instances, static_cast<int_t>(this->current_level->get_instance_count()), d_cam, gpu);
+		ZDrender::draw(this->frame_buffer, d_models, d_instances, d_cam, static_cast<int_t>(this->current_level->get_instance_count()), gpu);
 
 		copy_color_buffer(this->frame_buffer, color_buff);
 
@@ -204,7 +224,7 @@ void ZDapp::main_loop() {
 
 		this->empty_queues();
 
-		delete color_buff;
+		delete[] color_buff;
 		std::cout << "Frame " << frame_count << " Complete." << std::endl;
 		frame_count++;
 		this->last_time = glfwGetTime() - this->last_time;

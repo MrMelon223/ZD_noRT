@@ -4,7 +4,7 @@
 class cull_models_from_camera;
 class draw_instances;
 
-void calculate_instance_visibility(d_ZDmodel* models, d_ZDinstance* instances, int_t instance_count, d_ZDcamera* camera, sycl::queue* queue) {
+void ZDrender::calculate_instance_visibility(d_ZDmodel* models, d_ZDinstance* instances, int_t instance_count, d_ZDcamera* camera, sycl::queue* queue) {
 	try {
 		d_ZDmodel* d_models = models;
 		d_ZDinstance* d_instances = instances;
@@ -16,10 +16,23 @@ void calculate_instance_visibility(d_ZDmodel* models, d_ZDinstance* instances, i
 
 				d_ZDinstance* inst = &d_instances[index];
 				d_ZDmodel* model = &d_models[inst->model_index];
-				for (int_t i = 0; i < inst->triangle_count; i++) {
-					inst->visible_triangles[i] = true;
-				}
 
+				vec3_t cam_to_inst = ZD::subtract_v3(d_camera->position, inst->position);
+				float d_prod = ZD::dot(cam_to_inst, d_camera->direction);
+				inst->show = true;
+				if (d_prod <= 0.0f) {
+					inst->show = false;
+				}
+				else {
+					cam_to_inst = ZD::normalize(cam_to_inst);
+					float angle = ZD::dot(d_camera->direction, cam_to_inst);
+					if (angle >= sycl::cos(d_camera->hori_fov * 0.5f)) {
+						inst->show = true;
+					}
+					else {
+						inst->show = false;
+					}
+				}
 
 			});
 		});
@@ -31,7 +44,7 @@ void calculate_instance_visibility(d_ZDmodel* models, d_ZDinstance* instances, i
 	}
 }
 
-void draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* instances, d_ZDcamera* camera, int_t instance_count, sycl::queue* queue) {
+void ZDrender::draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* instances, d_ZDcamera* camera, int_t instance_count, sycl::queue* queue) {
 	color_t* d_color_buff = buff->color_buffer;
 	float* d_depth_buff = buff->depth_buffer;
 	d_ZDmodel* d_models = models;
@@ -62,6 +75,7 @@ void draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* instances, d_Z
 				d_ZDmodel* model = &d_models[inst->model_index];
 
 				vec3_t* positions = model->vertex_positions;
+				vec3_t* normals = model->triangle_normals;
 				tri_t* tri_idxs = model->triangle_indices;
 					// float fov, float aspectRatio, float nearPlane, float farPlane
 				mat4_t perspect = ZD::perspective(d_camera->hori_fov, static_cast<float>(*d_width) / *d_height, 0.01f, 100.0f);
@@ -69,9 +83,10 @@ void draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* instances, d_Z
 				mat4_t cam_mtx = ZD::invert(ZD::rotate(d_camera->rotation), fail_invert);
 				mat4_t rotation = ZD::rotate(inst->rotation);
 
-					for (uint_t i = 0; i < inst->vertex_count; i++) {
+				for (uint_t i = 0; i < inst->vertex_count; i++) {
 						//if (inst->visible_triangles[i]) {
 						vec3_t v0 = positions[i];
+						vec3_t n0 = 
 						v0 = ZD::add_v3(v0, ZD::subtract_v3(d_camera->position, inst->position));
 
 						v0 = ZD::to_vec3(ZD::product_m4(rotation, ZD::to_vec4(v0, 0.0f)));
@@ -80,6 +95,16 @@ void draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* instances, d_Z
 
 
 						inst->transformed_vertices[i] = vec3_t{ inst->scale * v0.x, inst->scale * v0.y, inst->scale * v0.z };
+				}
+				for (uint_t i = 0; i < inst->triangle_count; i++) {
+					vec3_t v0 = normals[i];
+					//v0 = ZD::add_v3(v0, ZD::subtract_v3(d_camera->position, inst->position));
+
+					v0 = ZD::to_vec3(ZD::product_m4(rotation, ZD::to_vec4(v0, 0.0f)));
+					v0 = ZD::to_vec3(ZD::product_m4(cam_mtx, ZD::to_vec4(v0, 0.0f)));
+
+
+					inst->transformed_normals[i] = v0;
 				}
 			});
 		});
@@ -105,37 +130,43 @@ void draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* instances, d_Z
 				float fov_rad = d_camera->hori_fov * (PI / 180.0f);
 				float half_fov = fov_rad * 0.5f;
 
-				normalized_coord.x = norm_x;
+				normalized_coord.x = norm_x * ratio;
 				normalized_coord.y = norm_y;
+
+				d_color_buff[y * *d_width + x] = color_t{ 0.17f, 0.15f, 0.17f, 1.0f };
 
 				for (uint_t i = 0; i < *d_instance_count; i++) {
 					d_ZDinstance* instance = &d_instances[i];
-					d_ZDmodel* model = &d_models[instance->model_index];
-					for (uint_t j = 0; j < instance->triangle_count; j++) {
-						//if (instance->visible_triangles[j]) {
-							tri_t t = d_models[instance->model_index].triangle_indices[j];
+					if (instance->show) {
+						d_ZDmodel* model = &d_models[instance->model_index];
+						for (uint_t j = 0; j < instance->triangle_count; j++) {
+							//if (instance->visible_triangles[j]) {
+								tri_t t = d_models[instance->model_index].triangle_indices[j];
+								vec3_t normal = instance->transformed_normals[j];
 
-							vec3_t v0 = instance->transformed_vertices[t.a],
-								 v1 = instance->transformed_vertices[t.b],
-								 v2 = instance->transformed_vertices[t.c];
+								float n_dot = ZD::dot(normal, d_camera->direction);
+								//if (n_dot <= 0.0f) {
 
-							vec2_t v0a = { -v0.x / v0.z, -v0.y / v0.z },
-								v1a = { -v1.x / v1.z, -v1.y / v1.z },
-								v2a = { -v2.x / v2.z, -v2.y / v2.z };
+									vec3_t v0 = instance->transformed_vertices[t.a],
+										v1 = instance->transformed_vertices[t.b],
+										v2 = instance->transformed_vertices[t.c];
 
-							float sign1 = ZD::line_equation(normalized_coord, v0a, v1a),
-								sign2 = ZD::line_equation(normalized_coord, v1a, v2a),
-								sign3 = ZD::line_equation(normalized_coord, v2a, v0a);
+									vec2_t v0a = { -v0.x / v0.z, -v0.y / v0.z },
+										v1a = { -v1.x / v1.z, -v1.y / v1.z },
+										v2a = { -v2.x / v2.z, -v2.y / v2.z };
+
+									float sign1 = ZD::line_equation(normalized_coord, v0a, v1a),
+										sign2 = ZD::line_equation(normalized_coord, v1a, v2a),
+										sign3 = ZD::line_equation(normalized_coord, v2a, v0a);
 
 
-							if ((sign1 >= 0.0f && sign2 >= 0.0f && sign3 >= 0.0f) ||
-								(sign1 <= 0.0f && sign2 <= 0.0f && sign3 <= 0.0f)){
-								d_color_buff[y * *d_width + x] = color_t{ 1.0f, 1.0f, 1.0f, 1.0f };
-							}
-							else {
-								d_color_buff[y * *d_width + x] = color_t{ 0.17f, 0.15f, 0.17f, 1.0f };
-							}
-						//}
+									if ((sign1 >= 0.0f && sign2 >= 0.0f && sign3 >= 0.0f) ||
+										(sign1 <= 0.0f && sign2 <= 0.0f && sign3 <= 0.0f)) {
+										d_color_buff[y * *d_width + x] = color_t{ 1.0f, 1.0f, 1.0f, 1.0f };
+									}
+								//}
+							//}
+						}
 					}
 				}
 			});

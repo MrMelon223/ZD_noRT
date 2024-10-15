@@ -59,6 +59,7 @@ struct d_ZDinstance {
 	float scale;
 	bool* visible_triangles;
 	vec3_t* transformed_vertices;
+	vec3_t* transformed_normals;
 
 	sycl::queue* queue;
 };
