@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35208.52
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZD_noRT", "ZD_noRT.vcxproj", "{8BCF3118-BE3A-4581-AA28-F4A987E2717C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8BCF3118-BE3A-4581-AA28-F4A987E2717C}.Debug|x64.ActiveCfg = Debug|x64
+		{8BCF3118-BE3A-4581-AA28-F4A987E2717C}.Debug|x64.Build.0 = Debug|x64
+		{8BCF3118-BE3A-4581-AA28-F4A987E2717C}.Release|x64.ActiveCfg = Release|x64
+		{8BCF3118-BE3A-4581-AA28-F4A987E2717C}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C1E12B63-7B54-40CF-B38C-7F0CB9ABA7D3}
+	EndGlobalSection
+EndGlobal
