@@ -63,6 +63,24 @@ void ZDcamera::update_direction(float x, float y) {
 	this->direction = ZD::normalize(this->direction);
 }
 
+void ZDcamera::update_direction() {
+	if (this->rotation.y > 80.0f) {
+		this->rotation.y = 80.0f;
+	}
+	if (this->rotation.y < -88.0f) {
+		this->rotation.y = -88.0f;
+	}
+
+	float yaw = this->rotation.x * (PI / 180.0f),
+		pitch = this->rotation.y * (PI / 180.0f);
+
+	this->direction.x = sycl::cos(yaw) * sycl::cos(pitch);
+	this->direction.y = sycl::sin(pitch);
+	this->direction.z = sycl::sin(yaw) * sycl::cos(pitch);
+
+	this->direction = ZD::normalize(this->direction);
+}
+
 void ZDcamera::right(float t) {
 	this->position = ZD::add_v3(this->position, ZD::multiply(ZD::normalize(this->direction), t * 0.01f));
 }
@@ -82,6 +100,13 @@ void ZDcamera::turn_right(float t) {
 }
 void ZDcamera::turn_left(float t) {
 	this->rotation.y -= 0.1f;
+}
+
+void ZDcamera::turn_up(float t) {
+	this->rotation.x -= 0.1f;
+}
+void ZDcamera::turn_down(float t) {
+	this->rotation.x += 0.1f;
 }
 
 void ZDcamera::debug_print() {

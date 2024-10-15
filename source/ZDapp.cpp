@@ -66,7 +66,25 @@ void ZDapp::input_handle(KeyboardButtonUse& k) {
 			this->current_level->get_camera()->debug_print();
 		}
 		break;
-	case GLFW_KEY_W:
+	case GLFW_KEY_UP:
+		if (CURRENT_ACTION == GLFW_RELEASE) {
+
+		}
+		if (CURRENT_ACTION == GLFW_PRESS || CURRENT_ACTION == GLFW_REPEAT) {
+			this->current_level->get_camera()->turn_up(glfwGetTime() - this->last_time);
+			this->current_level->get_camera()->debug_print();
+		}
+		break;
+	case GLFW_KEY_DOWN:
+		if (CURRENT_ACTION == GLFW_RELEASE) {
+
+		}
+		if (CURRENT_ACTION == GLFW_PRESS || CURRENT_ACTION == GLFW_REPEAT) {
+			this->current_level->get_camera()->turn_down(glfwGetTime() - this->last_time);
+			this->current_level->get_camera()->debug_print();
+		}
+		break;
+	case GLFW_KEY_D:
 		if (CURRENT_ACTION == GLFW_RELEASE) {
 
 		}
@@ -75,7 +93,7 @@ void ZDapp::input_handle(KeyboardButtonUse& k) {
 			this->current_level->get_camera()->debug_print();
 		}
 		break;
-	case GLFW_KEY_S:
+	case GLFW_KEY_A:
 		if (CURRENT_ACTION == GLFW_RELEASE) {
 
 		}
@@ -84,7 +102,7 @@ void ZDapp::input_handle(KeyboardButtonUse& k) {
 			this->current_level->get_camera()->debug_print();
 		}
 		break;
-	case GLFW_KEY_A:
+	case GLFW_KEY_S:
 		if (CURRENT_ACTION == GLFW_RELEASE) {
 
 		}
@@ -93,7 +111,7 @@ void ZDapp::input_handle(KeyboardButtonUse& k) {
 			this->current_level->get_camera()->debug_print();
 		}
 		break;
-	case GLFW_KEY_D:
+	case GLFW_KEY_W:
 		if (CURRENT_ACTION == GLFW_RELEASE) {
 
 		}
@@ -218,9 +236,11 @@ void ZDapp::main_loop() {
 		glfwPollEvents();
 
 		double x, y;
-		glfwGetCursorPos(this->window, &x, &y);
+		/*glfwGetCursorPos(this->window, &x, &y);
 		glfwSetCursorPos(this->window, 0.5 * static_cast<double>(this->width), 0.5 * static_cast<double>(this->height));
-		this->current_level->get_camera()->update_direction(static_cast<float>(x), static_cast<float>(y));
+		this->current_level->get_camera()->update_direction(static_cast<float>(x), static_cast<float>(y));*/
+
+		this->current_level->get_camera()->update_direction();
 
 		this->empty_queues();
 

@@ -20,6 +20,7 @@ public:
 	vec3_t get_position() { return this->position; }
 
 	void update_direction(float, float);
+	void update_direction();
 
 	void forward(float);
 	void backward(float);
@@ -28,6 +29,8 @@ public:
 
 	void turn_right(float);
 	void turn_left(float);
+	void turn_up(float);
+	void turn_down(float);
 
 	void debug_print();
 

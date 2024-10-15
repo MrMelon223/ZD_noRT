@@ -74,7 +74,7 @@ ZDlevel::ZDlevel(sycl::queue* queue, std::string file_path, std::string name) {
 	this->name = name;
 	this->load_from(file_path);
 
-	this->camera = new ZDcamera(1280, 720, 120.0f, vec3_t{ 0.0f, 0.0f, -1.0f }, vec3_t{ 0.0f, 0.0f, 1.0f });
+	this->camera = new ZDcamera(1280, 720, 120.0f, vec3_t{ 8.0f, 8.0f, 8.0f }, vec3_t{ 0.0f, 0.0f, 1.0f });
 }
 
 d_ZDmodel* ZDlevel::models_to_gpu() {
