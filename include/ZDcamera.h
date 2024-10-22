@@ -6,10 +6,21 @@
 struct d_ZDcamera;
 struct d_ZDfrustrum;
 
+struct d_ZDvertex_sample {
+	bool hit;
+	uint_t model_index,
+		triangle_index;
+	vec3_t triangle_normal;
+	float depth;
+	uv_t uv_coord;
+};
+
 class ZDcamera {
 protected:
 	int_t width, height;
 	vec3_t position, direction, rotation;
+
+	const float DEADZONE = 0.055f;
 
 	float hori_fov;
 public:
@@ -32,15 +43,22 @@ public:
 	void turn_up(float);
 	void turn_down(float);
 
+	void turn_right_for(float);
+	void look_up_for(float);
+
+
 	void debug_print();
 
 	d_ZDcamera* to_gpu(sycl::queue*);
 };
 
+d_ZDvertex_sample* from_gpu(d_ZDcamera*, sycl::queue*);
+
 struct d_ZDcamera {
 	sycl::queue* queue;
 	vec3_t position, direction, rotation;
 	float hori_fov;
+	d_ZDvertex_sample* vertex_samples;
 };
 
 #endif

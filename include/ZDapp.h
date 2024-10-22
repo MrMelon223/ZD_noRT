@@ -37,6 +37,9 @@ protected:
 	void mouse_handle(MouseButtonUse&);
 
 	float last_time;
+	bool gamepad;
+
+	void setup_gamepad();
 public:
 	ZDapp(int_t, int_t);
 

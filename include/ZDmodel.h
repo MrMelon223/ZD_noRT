@@ -6,10 +6,6 @@
 struct d_ZDmodel;
 struct d_ZDinstance;
 
-struct d_ZDvertex_sample {
-	vec3_t vert;
-};
-
 class ZDmodel {
 protected:
 	std::string file_path;

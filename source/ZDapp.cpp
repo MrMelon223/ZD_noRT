@@ -178,6 +178,16 @@ void ZDapp::mouse_handle(MouseButtonUse& m) {
 
 }
 
+void ZDapp::setup_gamepad() {
+	int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
+	if (present == GLFW_FALSE) {
+		this->gamepad = false;
+		return;
+	}
+
+	this->gamepad = true;
+}
+
 ZDapp::ZDapp(int_t width, int_t height) {
 	this->compute = new Compute();
 	this->compute->debug_print();
@@ -189,6 +199,7 @@ ZDapp::ZDapp(int_t width, int_t height) {
 	this->height = height;
 
 	this->current_level = new ZDlevel(this->compute->get_gpu_queue(), "resources/levels/test_level.txt", "test_level");
+	this->setup_gamepad();
 }
 
 void ZDapp::main_loop() {
@@ -209,6 +220,8 @@ void ZDapp::main_loop() {
 	size_t frame_count = 0;
 	this->last_time = glfwGetTime();
 	d_ZDcamera* d_cam;
+	d_ZDvertex_sample* sample_ptr = nullptr;
+	ZDcamera* camera = this->current_level->get_camera();
 
 	sycl::queue* gpu = this->compute->get_gpu_queue();
 	while (this->loop && !glfwWindowShouldClose(this->window)) {
@@ -236,9 +249,18 @@ void ZDapp::main_loop() {
 		glfwPollEvents();
 
 		double x, y;
-		/*glfwGetCursorPos(this->window, &x, &y);
-		glfwSetCursorPos(this->window, 0.5 * static_cast<double>(this->width), 0.5 * static_cast<double>(this->height));
-		this->current_level->get_camera()->update_direction(static_cast<float>(x), static_cast<float>(y));*/
+		if (this->gamepad) {
+			int count;
+			const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
+
+			camera->turn_right_for(axes[0]);
+			camera->look_up_for(axes[1]);
+		}
+		else {
+			glfwGetCursorPos(this->window, &x, &y);
+			glfwSetCursorPos(this->window, 0.5 * static_cast<double>(this->width), 0.5 * static_cast<double>(this->height));
+			this->current_level->get_camera()->update_direction(static_cast<float>(x), static_cast<float>(y));
+		}
 
 		this->current_level->get_camera()->update_direction();
 
@@ -248,6 +270,8 @@ void ZDapp::main_loop() {
 		std::cout << "Frame " << frame_count << " Complete." << std::endl;
 		frame_count++;
 		this->last_time = glfwGetTime() - this->last_time;
+		sample_ptr = from_gpu(d_cam, this->compute->get_gpu_queue());
+		sycl::free(sample_ptr, *this->compute->get_gpu_queue());
 		sycl::free(d_cam, *this->compute->get_gpu_queue());
 	}
 

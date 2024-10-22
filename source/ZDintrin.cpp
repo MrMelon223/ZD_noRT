@@ -1,6 +1,10 @@
 	// ZDintrin.cpp
 #include "../include/ZDintrin.h"
 
+uv_t ZD::sum_uv(uv_t a, uv_t b) {
+	return uv_t{ a.x + b.x, a.y + b.y };
+}
+
 vec4_t ZD::to_vec4(vec3_t a, float b) {
 	return vec4_t{ a.x, a.y, a.z, b };
 }

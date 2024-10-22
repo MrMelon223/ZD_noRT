@@ -5,6 +5,8 @@
 #include "Helper.h"
 
 namespace ZD {
+	SYCL_EXTERNAL uv_t sum_uv(uv_t, uv_t);
+
 	SYCL_EXTERNAL vec4_t to_vec4(vec3_t, float);
 	SYCL_EXTERNAL vec3_t to_vec3(vec4_t);
 
