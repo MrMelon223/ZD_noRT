@@ -10,6 +10,7 @@ struct d_ZDvertex_sample {
 	bool hit;
 	uint_t model_index,
 		triangle_index;
+	uint_t instance_index;
 	vec3_t triangle_normal;
 	float depth;
 	uv_t uv_coord;

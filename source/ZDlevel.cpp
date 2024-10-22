@@ -34,6 +34,10 @@ void ZDlevel::load_from(std::string path) {
 
 	this->host_models = std::vector<ZDmodel>();
 	this->device_models = std::vector<d_ZDmodel>();
+	this->host_textures = std::vector<ZDtexture>();
+	this->device_textures = std::vector<d_ZDtexture>();
+
+	this->host_textures.push_back(ZDtexture("resources/textures/checkerboard.png", "test"));
 
 	for (size_t i = 0; i < leng; i++) {
 		std::getline(in, line);
@@ -63,7 +67,7 @@ void ZDlevel::load_from(std::string path) {
 				continue;
 			}
 		}
-		this->device_instances.push_back(create_instance(h_idx, position, rotation, this->host_models[h_idx].get_vertex_count(), this->host_models[h_idx].get_triangle_count(), true, scale, this->queue));
+		this->device_instances.push_back(create_instance(h_idx, position, rotation, this->host_models[h_idx].get_vertex_count(), this->host_models[h_idx].get_triangle_count(), true, scale, 0, this->queue));
 
 		std::cout << "d_model = " << this->device_instances.back().model_index << std::endl;
 	}
@@ -74,7 +78,7 @@ ZDlevel::ZDlevel(sycl::queue* queue, std::string file_path, std::string name) {
 	this->name = name;
 	this->load_from(file_path);
 
-	this->camera = new ZDcamera(1280, 720, 120.0f, vec3_t{ 100.0f, 100.0f, 100.0f }, vec3_t{ 0.0f, 0.0f, -1.0f });
+	this->camera = new ZDcamera(1280, 720, 120.0f, vec3_t{ 99.0f, 100.0f, 100.0f }, vec3_t{ 0.0f, 0.0f, -1.0f });
 }
 
 d_ZDmodel* ZDlevel::models_to_gpu() {
@@ -89,4 +93,17 @@ d_ZDinstance* ZDlevel::instances_to_gpu() {
 	this->queue->memcpy(instances, this->device_instances.data(), sizeof(d_ZDinstance) * this->device_instances.size());
 	this->queue->wait();
 	return instances;
+}
+
+d_ZDtexture* ZDlevel::textures_to_gpu() {
+
+	for (uint_t i = 0; i < this->host_textures.size(); i++) {
+		this->device_textures.push_back(this->host_textures[i].to_gpu(this->queue));
+	}
+
+	d_ZDtexture* textures = sycl::malloc_device<d_ZDtexture>(this->device_textures.size(), *this->queue);
+	this->queue->memcpy(textures, this->device_textures.data(), sizeof(d_ZDtexture) * this->device_textures.size());
+	this->queue->wait();
+
+	return textures;
 }

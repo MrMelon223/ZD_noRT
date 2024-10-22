@@ -192,7 +192,7 @@ ZDapp::ZDapp(int_t width, int_t height) {
 	this->compute = new Compute();
 	this->compute->debug_print();
 
-	//ZDruntime::load_textures();
+	ZDruntime::load_textures();
 	ZDruntime::load_models();
 
 	this->width = width;
@@ -216,6 +216,7 @@ void ZDapp::main_loop() {
 
 	d_ZDmodel* d_models = this->current_level->models_to_gpu();
 	d_ZDinstance* d_instances = this->current_level->instances_to_gpu();
+	d_ZDtexture* d_textures = this->current_level->textures_to_gpu();
 	this->frame_buffer = create_framebuffer(this->compute->get_gpu_queue(), this->width, this->height);
 	size_t frame_count = 0;
 	this->last_time = glfwGetTime();
@@ -233,7 +234,7 @@ void ZDapp::main_loop() {
 		d_cam = this->current_level->get_camera()->to_gpu(this->compute->get_gpu_queue());
 
 		ZDrender::calculate_instance_visibility(d_models, d_instances, static_cast<int_t>(this->current_level->get_instance_count()), d_cam, gpu);
-		ZDrender::draw(this->frame_buffer, d_models, d_instances, d_cam, static_cast<int_t>(this->current_level->get_instance_count()), gpu);
+		ZDrender::draw(this->frame_buffer, d_models, d_textures, d_instances, d_cam, static_cast<int_t>(this->current_level->get_instance_count()), gpu);
 
 		copy_color_buffer(this->frame_buffer, color_buff);
 

@@ -4,7 +4,7 @@
 #include "ZDintrin.h"
 
 struct d_ZDmodel;
-struct d_ZDinstance;
+struct d_ZDinstance; 
 
 class ZDmodel {
 protected:
@@ -57,10 +57,12 @@ struct d_ZDinstance {
 	vec3_t* transformed_vertices;
 	vec3_t* transformed_normals;
 
+	uint_t diffuse_index;
+
 	sycl::queue* queue;
 };
 
-d_ZDinstance create_instance(int_t, vec3_t, vec3_t, uint_t, uint_t, bool, float, sycl::queue*);
+d_ZDinstance create_instance(int_t, vec3_t, vec3_t, uint_t, uint_t, bool, float, uint_t, sycl::queue*);
 void free_instance(d_ZDinstance*);
 
 #endif

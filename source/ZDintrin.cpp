@@ -59,6 +59,10 @@ mat4_t ZD::create_m4(vec4_t a, vec4_t b, vec4_t c, vec4_t d) {
 	return m;
 }
 
+color_t ZD::add(color_t a, color_t b) {
+	return color_t{ a.x + b.x, a.y + b.y, a.z + b.z };
+}
+
 mat3_t ZD::create_m3(vec3_t a, vec3_t b, vec3_t c) {
 	mat3_t m{};
 	m.data[0][0] = a.x;

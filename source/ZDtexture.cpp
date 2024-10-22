@@ -43,3 +43,22 @@ ZDtexture::ZDtexture(std::string path, std::string name) {
 	this->name = name;
 	this->load_from(path);
 }
+
+d_ZDtexture ZDtexture::to_gpu(sycl::queue* q) {
+	d_ZDtexture t{ q, this->width, this->height, nullptr };
+
+	t.data = sycl::malloc_device<color_t>(this->height * this->width, *q);
+	q->memcpy(t.data, this->data.data(), this->height * this->width * sizeof(color_t));
+	q->wait();
+
+	return t;
+}
+
+color_t d_ZDtexture::sample(float x, float y) {
+	if (x >= 0.0f && x <= 1.0f && y >= 0.0f && y < 1.0f) {
+		return data[static_cast<int_t>(y * this->height) * this->width + static_cast<int_t>(x * this->width)];
+	}
+	else {
+		return color_t{ 0.0f, 0.0f, 0.0f, 1.0f };
+	}
+}

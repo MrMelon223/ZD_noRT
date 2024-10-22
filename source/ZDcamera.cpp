@@ -79,32 +79,32 @@ void ZDcamera::update_direction() {
 	float yaw = this->rotation.x * (PI / 180.0f),
 		pitch = this->rotation.y * (PI / 180.0f);
 
+	if (this->rotation.x < 0.0f) {
+		this->rotation.x = sycl::fmod(this->rotation.x, -2.0f * PI);
+	}
+	else {
+		this->rotation.x = sycl::fmod(this->rotation.x, 2.0f * PI);
+	}
+
+	if (this->rotation.y < 0.0f) {
+		this->rotation.y = sycl::fmod(this->rotation.y, -2.0f * PI);
+	}
+	else {
+		this->rotation.y = sycl::fmod(this->rotation.y, 2.0f * PI);
+	}
+
+	if (this->rotation.z < 0.0f) {
+		this->rotation.z = sycl::fmod(this->rotation.z, -2.0f * PI);
+	}
+	else {
+		this->rotation.z = sycl::fmod(this->rotation.z, 2.0f * PI);
+	}
+
 	this->direction.x = sycl::cos(yaw) * sycl::cos(pitch);
 	this->direction.y = sycl::sin(pitch);
 	this->direction.z = sycl::sin(yaw) * sycl::cos(pitch);
 
 	this->direction = ZD::normalize(this->direction);
-
-	if (this->direction.x < 0.0f) {
-		this->direction.x = fmodf(this->direction.x, -2.0f * PI);
-	}
-	else {
-		this->direction.x = fmodf(this->direction.x, 2.0f * PI);
-	}
-
-	if (this->direction.y < 0.0f) {
-		this->direction.y = fmodf(this->direction.y, -2.0f * PI);
-	}
-	else {
-		this->direction.y = fmodf(this->direction.y, 2.0f * PI);
-	}
-
-	if (this->direction.z < 0.0f) {
-		this->direction.z = fmodf(this->direction.z, -2.0f * PI);
-	}
-	else {
-		this->direction.z = fmodf(this->direction.z, 2.0f * PI);
-	}
 }
 
 void ZDcamera::forward(float t) {

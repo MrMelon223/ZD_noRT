@@ -19,6 +19,8 @@ namespace ZD {
 	SYCL_EXTERNAL mat3_t create_m3(vec3_t, vec3_t, vec3_t); // Column Major
 	SYCL_EXTERNAL mat4_t create_m4(vec4_t, vec4_t, vec4_t, vec4_t); // Column Major
 
+	SYCL_EXTERNAL color_t add(color_t, color_t);
+
 	SYCL_EXTERNAL vec3_t cross(vec3_t, vec3_t);
 	SYCL_EXTERNAL float cross_2d(vec2_t, vec2_t, vec2_t);
 	SYCL_EXTERNAL float dot(vec3_t, vec3_t);

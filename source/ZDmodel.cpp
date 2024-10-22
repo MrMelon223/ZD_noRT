@@ -137,8 +137,8 @@ d_ZDmodel ZDmodel::to_gpu(sycl::queue* q) {
 	return ret;
 }
 
-d_ZDinstance create_instance(int_t mod_idx, vec3_t position, vec3_t rotation, uint_t v_count, uint_t t_count, bool show, float scale, sycl::queue* q) {
-	d_ZDinstance inst{ mod_idx, position, rotation, v_count, t_count, show, scale, nullptr, nullptr, nullptr, q};
+d_ZDinstance create_instance(int_t mod_idx, vec3_t position, vec3_t rotation, uint_t v_count, uint_t t_count, bool show, float scale, uint_t texture, sycl::queue* q) {
+	d_ZDinstance inst{ mod_idx, position, rotation, v_count, t_count, show, scale, nullptr, nullptr, nullptr, texture, q};
 
 	inst.visible_triangles = sycl::malloc_device<bool>(t_count, *q);
 	inst.transformed_vertices = sycl::malloc_device<vec3_t>(v_count, *q);

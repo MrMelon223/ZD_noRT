@@ -13,6 +13,9 @@ protected:
 	std::vector<d_ZDmodel> device_models;
 	std::vector<d_ZDinstance> device_instances;
 
+	std::vector<ZDtexture> host_textures;
+	std::vector<d_ZDtexture> device_textures;
+
 	ZDcamera* camera;
 
 	int_t find_host_model(std::string);
@@ -30,6 +33,7 @@ public:
 
 	d_ZDmodel* models_to_gpu();
 	d_ZDinstance* instances_to_gpu();
+	d_ZDtexture* textures_to_gpu();
 };
 
 #endif

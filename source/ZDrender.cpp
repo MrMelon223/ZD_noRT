@@ -62,12 +62,13 @@ void ZDrender::calculate_instance_visibility(d_ZDmodel* models, d_ZDinstance* in
 	}
 }
 
-void ZDrender::draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* instances, d_ZDcamera* camera, int_t instance_count, sycl::queue* queue) {
+void ZDrender::draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDtexture* textures, d_ZDinstance* instances, d_ZDcamera* camera, int_t instance_count, sycl::queue* queue) {
 	color_t* d_color_buff = buff->color_buffer;
 	float* d_depth_buff = buff->depth_buffer;
 	d_ZDmodel* d_models = models;
 	d_ZDinstance* d_instances = instances;
 	d_ZDcamera* d_camera = camera;
+	d_ZDtexture* d_textures = textures;
 	int_t* d_width, * d_height, * d_instance_count;
 
 	try {
@@ -96,7 +97,7 @@ void ZDrender::draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* inst
 				vec3_t* normals = model->triangle_normals;
 				tri_t* tri_idxs = model->triangle_indices;
 					// float fov, float aspectRatio, float nearPlane, float farPlane
-				mat4_t perspect = ZD::perspective(d_camera->hori_fov, static_cast<float>(*d_width) / *d_height, 0.01f, 100.0f);
+				mat4_t perspect = ZD::perspective(d_camera->hori_fov, static_cast<float>(*d_width) / *d_height, 0.1f, 100.0f);
 				bool fail_invert = false;
 				mat4_t cam_mtx = ZD::invert(ZD::rotate(d_camera->rotation), fail_invert);
 				mat4_t rotation = ZD::rotate(inst->rotation);
@@ -188,10 +189,7 @@ void ZDrender::draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* inst
 										float min_y = ZD::minf(v0a.y, ZD::minf(v1a.y, v2a.y));
 										float max_y = ZD::maxf(v0a.y, ZD::maxf(v1a.y, v2a.y));
 
-										if ((max_x < -1.0f || min_x > 1.0f) && (max_y < -1.0f || min_y > 1.0f) && !((min_x < -1.0f && max_x > 1.0f) ||(min_y < -1.0f && max_y > 1.0f))) {
-
-										}
-										else {
+										if ((max_x > -1.0f || min_x < 1.0f) && (min_x > -1.0f && max_x < 1.0f) && (min_y > -1.0f || max_y < 1.0f) && (min_y > -1.0f && max_y < 1.0f)/* && !((min_x < -1.0f && max_x > 1.0f) || (min_y < -1.0f && max_y > 1.0f))*/) {
 											float sign1 = ZD::line_equation(normalized_coord, v0a, v1a),
 												sign2 = ZD::line_equation(normalized_coord, v1a, v2a),
 												sign3 = ZD::line_equation(normalized_coord, v2a, v0a);
@@ -205,6 +203,7 @@ void ZDrender::draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* inst
 
 												uv_t uv = compute_barycentric(comp_coord, d_models[instance->model_index].vertex_uvs[t.a], d_models[instance->model_index].vertex_uvs[t.b], d_models[instance->model_index].vertex_uvs[t.c]);
 
+												samp->instance_index = i;
 												samp->uv_coord = uv;
 												samp->hit = true;
 
@@ -217,6 +216,9 @@ void ZDrender::draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* inst
 											}
 											else {
 											}
+										}
+										else {
+										
 										}
 									}
 								}
@@ -244,12 +246,15 @@ void ZDrender::draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDinstance* inst
 				if (smp->hit) {
 					vec3_t sun_direction = vec3_t{ 0.10f, 0.33f, 0.2f };
 					color_t sun_color = color_t{ 0.72f, 0.45f, 0.93f, 1.0f };
-					float sun_intensity = 747.0f;
+					float sun_intensity = 0.77f;
+
+					color_t t_samp = d_textures[d_instances[smp->instance_index].diffuse_index].sample(smp->uv_coord.x, smp->uv_coord.y);
 
 					float diffuse = ZD::dot(smp->triangle_normal, sun_direction);
 					if (diffuse >= 0.0f) {
 						d_color_buff[index] = color_t{ sun_intensity * sun_color.x * diffuse, sun_intensity * sun_color.y * diffuse, sun_intensity * sun_color.z * diffuse , sun_intensity * sun_color.w * diffuse };
 						//d_color_buff[y * *d_width + x] = color_t{ 1.0f, 1.0f, 1.0f, 1.0f };
+						d_color_buff[index] = ZD::add(d_color_buff[index], t_samp);
 					}
 					else {
 						d_color_buff[y * *d_width + x] = color_t{ 0.0f, 0.0f, 0.0f, 1.0f };
