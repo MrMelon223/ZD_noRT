@@ -246,7 +246,7 @@ void ZDrender::draw(d_ZDframebuffer* buff, d_ZDmodel* models, d_ZDtexture* textu
 				if (smp->hit) {
 					vec3_t sun_direction = vec3_t{ 0.10f, 0.33f, 0.2f };
 					color_t sun_color = color_t{ 0.72f, 0.45f, 0.93f, 1.0f };
-					float sun_intensity = 0.77f;
+					float sun_intensity = 1.0f;
 
 					color_t t_samp = d_textures[d_instances[smp->instance_index].diffuse_index].sample(smp->uv_coord.x, smp->uv_coord.y);
 

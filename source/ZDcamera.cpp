@@ -173,11 +173,11 @@ void ZDcamera::look_up_for(float t) {
 		this->rotation.x = sycl::fmod(this->rotation.x, 2.0f * PI);
 	}
 
-	if (this->rotation.x > PI / 4.0f) {
-		this->rotation.x = PI / 4.0f;
+	if (this->rotation.x > PI / 2.0f) {
+		this->rotation.x = PI / 2.0f;
 	}
-	if (this->rotation.x < -PI / 4.0f) {
-		this->rotation.x = -PI / 4.0f;
+	if (this->rotation.x < -PI / 2.0f) {
+		this->rotation.x = -PI / 2.0f;
 	}
 }
 

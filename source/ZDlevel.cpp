@@ -37,7 +37,7 @@ void ZDlevel::load_from(std::string path) {
 	this->host_textures = std::vector<ZDtexture>();
 	this->device_textures = std::vector<d_ZDtexture>();
 
-	this->host_textures.push_back(ZDtexture("resources/textures/checkerboard.png", "test"));
+	this->host_textures.push_back(ZDtexture("resources/textures/test.jpg", "test"));
 
 	for (size_t i = 0; i < leng; i++) {
 		std::getline(in, line);
@@ -78,7 +78,7 @@ ZDlevel::ZDlevel(sycl::queue* queue, std::string file_path, std::string name) {
 	this->name = name;
 	this->load_from(file_path);
 
-	this->camera = new ZDcamera(1280, 720, 120.0f, vec3_t{ 103.0f, 100.0f, 100.0f }, vec3_t{ 0.0f, 0.0f, -1.0f });
+	this->camera = new ZDcamera(1280, 720, 120.0f, vec3_t{ 102.0f, 100.0f, 100.0f }, vec3_t{ 0.0f, 0.0f, -1.0f });
 }
 
 d_ZDmodel* ZDlevel::models_to_gpu() {

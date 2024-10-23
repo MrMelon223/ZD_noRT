@@ -256,8 +256,9 @@ void ZDapp::main_loop() {
 			camera->turn_right_for(axes[2]);
 			camera->look_up_for(axes[3]);
 			
-			camera->forward(axes[0]);
-			camera->right(axes[1]);
+			camera->forward(axes[1]);
+			camera->right(axes[0]);
+			camera->update_direction();
 		}
 		else {
 			glfwGetCursorPos(this->window, &x, &y);
