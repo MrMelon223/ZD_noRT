@@ -151,19 +151,33 @@ void ZDcamera::turn_down(float t) {
 
 void ZDcamera::turn_right_for(float t) {
 	if (t >= DEADZONE || t <= -DEADZONE) {
-		this->rotation.y += t;
-		this->rotation.y = sycl::fmod(this->rotation.y, 2.0f * PI);
+		this->rotation.y += t * 0.1f;
+
+		if (this->rotation.y < 0.0f) {
+			this->rotation.y = sycl::fmod(this->rotation.y, -2.0f * PI);
+		}
+		else {
+			this->rotation.y = sycl::fmod(this->rotation.y, 2.0f * PI);
+		}
+
 	}
 }
 void ZDcamera::look_up_for(float t) {
 	if (t >= DEADZONE || t <= -DEADZONE) {
-		this->rotation.x += t;
+		this->rotation.x += t * 0.1f;
 	}
-	if (this->rotation.x > 80.0f) {
-		this->rotation.x = 80.0f;
+	if (this->rotation.x < 0.0f) {
+		this->rotation.x = sycl::fmod(this->rotation.x, -2.0f * PI);
 	}
-	if (this->rotation.x < -80.0f) {
-		this->rotation.x = -80.0f;
+	else {
+		this->rotation.x = sycl::fmod(this->rotation.x, 2.0f * PI);
+	}
+
+	if (this->rotation.x > PI / 4.0f) {
+		this->rotation.x = PI / 4.0f;
+	}
+	if (this->rotation.x < -PI / 4.0f) {
+		this->rotation.x = -PI / 4.0f;
 	}
 }
 

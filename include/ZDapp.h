@@ -36,6 +36,8 @@ protected:
 	void input_handle(KeyboardButtonUse&);
 	void mouse_handle(MouseButtonUse&);
 
+	void gamepad_handle();
+
 	float last_time;
 	bool gamepad;
 

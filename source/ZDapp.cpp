@@ -179,13 +179,12 @@ void ZDapp::mouse_handle(MouseButtonUse& m) {
 }
 
 void ZDapp::setup_gamepad() {
+	this->gamepad = false;
 	int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
-	if (present == GLFW_FALSE) {
-		this->gamepad = false;
+	if (present == GLFW_TRUE) {
+		this->gamepad = true;
 		return;
 	}
-
-	this->gamepad = true;
 }
 
 ZDapp::ZDapp(int_t width, int_t height) {
@@ -199,7 +198,6 @@ ZDapp::ZDapp(int_t width, int_t height) {
 	this->height = height;
 
 	this->current_level = new ZDlevel(this->compute->get_gpu_queue(), "resources/levels/test_level.txt", "test_level");
-	this->setup_gamepad();
 }
 
 void ZDapp::main_loop() {
@@ -223,6 +221,7 @@ void ZDapp::main_loop() {
 	d_ZDcamera* d_cam;
 	d_ZDvertex_sample* sample_ptr = nullptr;
 	ZDcamera* camera = this->current_level->get_camera();
+	this->setup_gamepad();
 
 	sycl::queue* gpu = this->compute->get_gpu_queue();
 	while (this->loop && !glfwWindowShouldClose(this->window)) {
@@ -254,8 +253,11 @@ void ZDapp::main_loop() {
 			int count;
 			const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
 
-			camera->turn_right_for(axes[0]);
-			camera->look_up_for(axes[1]);
+			camera->turn_right_for(axes[2]);
+			camera->look_up_for(axes[3]);
+			
+			camera->forward(axes[0]);
+			camera->right(axes[1]);
 		}
 		else {
 			glfwGetCursorPos(this->window, &x, &y);
